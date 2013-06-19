@@ -18,8 +18,6 @@ object Driver {
     val conf = ConfigFactory.load()
     val apiKey = conf.getString("uploadr-app.apiKey")//"a900d0705dc54f91dc78158646847d70"
     val secret = conf.getString("uploadr-app.secret")
-//  val apiKey = "a900d0705dc54f91dc78158646847d70"
-//  val secret = "e16e06b1d26cb9c3"
   val driver = new Flickr(apiKey, secret, new REST())
   val frob = driver.getAuthInterface.getFrob
   val authUrl = driver.getAuthInterface.buildAuthenticationUrl(Permission.WRITE, frob)
