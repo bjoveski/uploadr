@@ -22,6 +22,9 @@ object Driver extends Logging {
   val frob = driver.getAuthInterface.getFrob
   val authUrl = driver.getAuthInterface.buildAuthenticationUrl(Permission.WRITE, frob)
 
+  var count = 0
+
+
   logger.info("Connecting to filckr")
   println(s"please visit ${authUrl.toExternalForm}")
   System.in.read()
@@ -32,18 +35,32 @@ object Driver extends Logging {
   logger.info("initialization done")
 
   def uploadPhoto(file: File) = {
-    val startTime = System.currentTimeMillis()
-    val meta = new UploadMetaData
-    meta.setTitle(file.getName)
-    meta.setHidden(true)
-    // meta.setAsync()
+    try {
+      val startTime = System.currentTimeMillis()
+      val meta = new UploadMetaData
+      meta.setTitle(file.getName)
+      meta.setHidden(true)
+      // meta.setAsync()
 
-    val in = new FileInputStream(file)
-    logger.info(s"start  uploading photo=[${file.getAbsolutePath}]")
-    val photoId = driver.getUploader.upload(in, meta)
-    logger.info(s"finish uploading photo=[${file.getAbsolutePath}] time=${System.currentTimeMillis() - startTime}")
+      val in = new FileInputStream(file)
+      logger.info(s"start  uploading [photo=${file.getAbsolutePath}]")
+      val photoId = driver.getUploader.upload(in, meta)
 
-    FlickrPhoto(photoId, meta)
+      count += 1
+      logger.info(s"finish uploading [photo=${file.getAbsolutePath}]" +
+        s"\t[photoid=$photoId]\t[time=${(System.currentTimeMillis() - startTime)/1000}]" +
+        s"\t[size=${file.length()/1000}]")
+
+      Some(FlickrPhoto(photoId, meta))
+    } catch {
+      case e: Exception => {
+          logger.error(s"error while uploading [photo=${file.getAbsolutePath}]. " +
+            s"[set=${file.getParentFile.getName}}]", e)
+          println(s"error while uploading [photo=${file.getAbsolutePath}] " +
+            s"[set=${file.getParentFile.getName}}] [error=${e.getMessage}]")
+          None
+        }
+    }
   }
 
 

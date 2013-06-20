@@ -12,20 +12,21 @@ import bjoveski.util.{Logging, Manager}
  * To change this template use File | Settings | File Templates.
  */
 object Uploadr extends Logging {
-  def createSetFromFolder(folderPath: String) = {
+
+  def createSetFromFolder(folder: File) = {
     val startTime = System.currentTimeMillis()
-    val folder = new File(folderPath)
     val photos = Manager.getPhotosInFolder(folder)
-    println(s" about to upload photos. count=[${photos.size}] folderName=[${folder.getName}]")
-    logger.info(s" about to upload photos. count=[${photos.size}] folderName=[${folder.getName}]")
+    println(s" about to upload photos. [count=${photos.size}] [folderName=${folder.getName}]")
+    logger.info(s" about to upload photos. [count=${photos.size}] [folderName=${folder.getName}]")
 
     val flickPhotos = photos.map(photoFile => {
-      Catalog.uploadPhoto(photoFile)
-
+        Catalog.uploadPhoto(photoFile)
     })
 
-    println(s"finished uploading. count=[${flickPhotos.size}] time=[${(System.currentTimeMillis() - startTime)/1000}]")
-    logger.info(s"finished uploading. count=[${flickPhotos.size}] time=[${(System.currentTimeMillis() - startTime)/1000}]")
-    Catalog.createSet(folder.getName, "test", flickPhotos)
+    val uploaded = flickPhotos.filter(opt => opt.isDefined).map(opt => opt.get)
+
+    println(s"finished uploading. [count=${uploaded.size}] [time=${(System.currentTimeMillis() - startTime)/1000} sec]")
+    logger.info(s"finished uploading. [count=${uploaded.size}] [time=${(System.currentTimeMillis() - startTime)/1000} sec]")
+    Catalog.createSet(folder.getName, "", uploaded)
   }
 }

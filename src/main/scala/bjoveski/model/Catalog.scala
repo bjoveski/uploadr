@@ -17,9 +17,12 @@ object Catalog {
 
 
   def uploadPhoto(file: File) = {
-    val photo = Driver.uploadPhoto(file)
-    photoid2Photo.put(photo.photoId, photo)
-    photo
+    val optPhoto = Driver.uploadPhoto(file)
+
+    if (optPhoto.isDefined) {
+      photoid2Photo.put(optPhoto.get.photoId, optPhoto.get)
+    }
+    optPhoto
   }
 
   def addPhotoToSet(photoSetId: String, photoId: String) {
