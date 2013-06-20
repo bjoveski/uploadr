@@ -29,4 +29,5 @@ object Uploadr extends Logging {
     logger.info(s"finished uploading. [count=${uploaded.size}] [time=${(System.currentTimeMillis() - startTime)/1000} sec]")
     Catalog.createSet(folder.getName, "", uploaded)
   }
+
 }
