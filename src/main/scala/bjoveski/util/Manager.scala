@@ -34,9 +34,12 @@ object Manager {
     val folders = Manager.folders.map(f => <folder><name>{f.getName}</name><path>{f.getAbsolutePath}</path><count>{Manager.getPhotosInFolder(f).size}</count></folder>)
 
     val writer = new PrintWriter(conf.getString("uploadr-app.outputXmlFile"))
-    writer.write("<folders>")
-    folders.foreach(folder => writer.write(folder.toString()))
-    writer.write("</folders>")
+    writer.write("<folders>\n")
+    folders.foreach(folder => {
+      writer.write(folder.toString())
+      writer.write("\n")
+    })
+    writer.write("</folders>\n")
     writer.close()
   }
 

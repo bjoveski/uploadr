@@ -3,6 +3,7 @@ package bjoveski
 import java.io.File
 import bjoveski.model.Catalog
 import bjoveski.util.{Logging, Manager}
+import com.typesafe.config.ConfigFactory
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,6 +13,7 @@ import bjoveski.util.{Logging, Manager}
  * To change this template use File | Settings | File Templates.
  */
 object Uploadr extends Logging {
+  val conf = ConfigFactory.load()
 
   def createSetFromFolder(folder: File) = {
     val startTime = System.currentTimeMillis()
@@ -30,4 +32,10 @@ object Uploadr extends Logging {
     Catalog.createSet(folder.getName, "", uploaded)
   }
 
+
+  def uploadPhotosFromXml() {
+    Manager.fromXml().foreach(folder => {
+      createSetFromFolder(folder)
+    })
+  }
 }
