@@ -62,7 +62,7 @@ object Manager {
     val folders = XML.loadFile(conf.getString("uploadr-app.outputXmlFile"))\"folder"
     folders.map(folder => {
       val f = new File((folder\"path").text)
-      val sets = (folder\"sets"\"setName").map(set => set.text).toSet
+      val sets = (folder\"sets"\"setName").map(set => set.text.trim).toSet
       Folder(f, sets)
     })
    }
