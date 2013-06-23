@@ -48,8 +48,8 @@ object Driver extends Logging {
 
       count += 1
       logger.info(s"finish uploading [photo=${file.getAbsolutePath}]" +
-        s"\t[photoid=$photoId]\t[time=${(System.currentTimeMillis() - startTime)/1000}]" +
-        s"\t[size=${file.length()/1000}]")
+        s"\t[photoid=$photoId]\t[time=${(System.currentTimeMillis() - startTime)/1000} sec]" +
+        s"\t[size=${file.length()/1000} kB]")
 
       Some(FlickrPhoto(photoId, meta))
     } catch {
