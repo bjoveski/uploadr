@@ -1,7 +1,7 @@
 package bjoveski
 
 import java.io.File
-import bjoveski.model.Catalog
+import bjoveski.model.{Folder, Catalog}
 import bjoveski.util.{Logging, Manager}
 import com.typesafe.config.ConfigFactory
 
@@ -15,11 +15,11 @@ import com.typesafe.config.ConfigFactory
 object Uploadr extends Logging {
   val conf = ConfigFactory.load()
 
-  def createSetFromFolder(folder: File) = {
+  def createSetFromFolder(f: Folder) = {
     val startTime = System.currentTimeMillis()
-    val photos = Manager.getPhotosInFolder(folder)
-    println(s" about to upload photos. [count=${photos.size}] [folderName=${folder.getName}]")
-    logger.info(s" about to upload photos. [count=${photos.size}] [folderName=${folder.getName}]")
+    val photos = Manager.getPhotosInFolder(f.folder)
+    println(s" about to upload photos. [count=${photos.size}] [folderName=${f.folder.getName}]")
+    logger.info(s" about to upload photos. [count=${photos.size}] [folderName=${f.folder.getName}]")
 
     val flickPhotos = photos.map(photoFile => {
         Catalog.uploadPhoto(photoFile)
@@ -29,7 +29,9 @@ object Uploadr extends Logging {
 
     println(s"finished uploading. [count=${uploaded.size}] [time=${(System.currentTimeMillis() - startTime)/1000} sec]")
     logger.info(s"finished uploading. [count=${uploaded.size}] [time=${(System.currentTimeMillis() - startTime)/1000} sec]")
-    Catalog.createSet(folder.getName, "", uploaded)
+    f.sets.foreach(set => {
+      Catalog.createSet(set, "", uploaded)
+    })
   }
 
 

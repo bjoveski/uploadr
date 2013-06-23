@@ -3,6 +3,9 @@ package bjoveski.util
 import java.io.{PrintWriter, File}
 import com.typesafe.config.ConfigFactory
 import scala.xml.XML
+import bjoveski.model.Folder
+import scala.collection.mutable
+import scala.collection.immutable.HashSet
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,15 +15,25 @@ import scala.xml.XML
  * To change this template use File | Settings | File Templates.
  */
 object Manager {
-  var folders: Iterable[File] = null
+  var folders: mutable.HashSet[Folder] = new mutable.HashSet()
   val conf = ConfigFactory.load()
 
 
   def apply(pathToRoot: String) {
     val root = new File(pathToRoot)
-    folders = root.listFiles().filter(dir => dir.isDirectory)
+
+    val dirs = root.listFiles().filter(dir => dir.isDirectory)
+    recurse(dirs, Set())
 
   }
+
+  def recurse(in: Traversable[File], sets: Set[String]) {
+    in.toList.foreach(f => {
+      val folder = Folder(f, sets)
+      folders.add(folder)
+      recurse(folder.getChildrenFolders, sets.union(Set(folder.name)))
+    })
+}
 
   def getPhotosInFolder(folder: File) = {
     if (!folder.isDirectory) {
@@ -31,7 +44,9 @@ object Manager {
   }
 
   def generateXml() = {
-    val folders = Manager.folders.map(f => <folder><name>{f.getName}</name><path>{f.getAbsolutePath}</path><count>{Manager.getPhotosInFolder(f).size}</count></folder>)
+    val folders = Manager.folders.map(f => {
+      f.toXml
+    })
 
     val writer = new PrintWriter(conf.getString("uploadr-app.outputXmlFile"))
     writer.write("<folders>\n")
@@ -44,9 +59,11 @@ object Manager {
   }
 
   def fromXml() = {
-    val folders = XML.loadFile(conf.getString("uploadr-app.outputXmlFile"))
-    folders.child.map(folder => {
-      new File((folder\"path").text)
+    val folders = XML.loadFile(conf.getString("uploadr-app.outputXmlFile"))\"folder"
+    folders.map(folder => {
+      val f = new File((folder\"path").text)
+      val sets = (folder\"sets"\"setName").map(set => set.text).toSet
+      Folder(f, sets)
     })
    }
 
